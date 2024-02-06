@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import moment from 'moment';
+import RegistroConsumoEnergia from './RegistroConsumoEnergia'; // Importe o componente
 
 function CalculadoraConsumoEnergia() {
   const [dataLeituraAtual, setDataLeituraAtual] = useState('');
   const [dataProximaLeitura, setDataProximaLeitura] = useState('');
   const [mediaMensalDesejada, setMediaMensalDesejada] = useState('');
   const [valorKwhDiario, setValorKwhDiario] = useState(0);
+  const [dataInicial, setDataInicial] = useState('');
+  const [dataFinal, setDataFinal] = useState('');
 
   const calcularConsumoEnergia = () => {
     // Verifica se todos os campos foram preenchidos
@@ -22,6 +25,10 @@ function CalculadoraConsumoEnergia() {
 
     // Define o valor do KWH diário no estado
     setValorKwhDiario(kwhDiario.toFixed(2));
+
+    // Define as datas inicial e final para passar como props
+    setDataInicial(dataLeituraAtual);
+    setDataFinal(dataProximaLeitura);
   };
 
   return (
@@ -45,6 +52,8 @@ function CalculadoraConsumoEnergia() {
           <h3>Resultado</h3>
           <p>Número de Dias entre as Leituras: {moment(dataProximaLeitura).diff(moment(dataLeituraAtual), 'days') + 1}</p>
           <p>Valor do KWH Diário Necessário: {valorKwhDiario}</p>
+          {/* Renderize o componente RegistroConsumoEnergia passando as datas inicial e final */}
+          <RegistroConsumoEnergia dataInicial={dataInicial} dataFinal={dataFinal} />
         </div>
       )}
     </div>
