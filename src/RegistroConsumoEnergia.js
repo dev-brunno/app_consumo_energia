@@ -22,7 +22,6 @@ function RegistroConsumoEnergia({ dataInicial, dataFinal }) {
       diaAtual = diaAtual.clone().add(1, 'day');
     }
     setDiasDisponiveis(dias);
-    console.log(dias)
   }, [dataInicial, dataFinal]);
 
   useEffect(() => {
@@ -106,7 +105,45 @@ function RegistroConsumoEnergia({ dataInicial, dataFinal }) {
     };
   
     // Atualizar o histórico de leituras
-    setHistoricoLeituras([...historicoLeituras, leitura]);
+    const novoHistoricoLeituras = [...historicoLeituras];
+    const diaSelecionado = moment(selectedDateTime);
+    const ultimoDiaRegistrado = novoHistoricoLeituras.length > 0 ? moment(novoHistoricoLeituras[novoHistoricoLeituras.length - 1].data).add(1, 'day') : moment(dataInicial);
+    const diasFaltantes = diaSelecionado.diff(ultimoDiaRegistrado, 'days');
+    console.log(ultimoDiaRegistrado.format('LL'))
+    console.log(diaSelecionado.format('LL'))
+    console.log(diasFaltantes)
+
+    // Preencher automaticamente os dias que faltam o registro de leitura
+    if (diasFaltantes > 0 || (diasFaltantes === 0 && !leituraExistente)) {
+      while (ultimoDiaRegistrado.isBefore(diaSelecionado) || ultimoDiaRegistrado.isSame(diaSelecionado, 'day')) {
+          console.log("Entrou!!")
+          const dataPreenchida = ultimoDiaRegistrado.clone().format('YYYY-MM-DD');
+          
+          // Verificar se o dia já foi registrado
+          const diaJaRegistrado = novoHistoricoLeituras.some(leitura => moment(leitura.data).isSame(dataPreenchida, 'day'));
+          
+          // Se o dia já foi registrado, não adicione um novo registro
+          if (!diaJaRegistrado) {
+              const diferencaKWHDiario = parseFloat(valorKWHDia) - parseFloat(valorKWHAnterior);
+              const kwhDiario = diferencaKWHDiario / (diasFaltantes + 1);
+              const leituraPreenchida = {
+                  dataHora: moment().format('LLLL'),
+                  data: dataPreenchida,
+                  valorKWHDia: valorKWHDia,
+                  valorKWHAnterior: valorKWHAnterior,
+                  kwhDiario: kwhDiario.toFixed(2),
+              };
+              novoHistoricoLeituras.push(leituraPreenchida);
+          }
+          
+          ultimoDiaRegistrado.add(1, 'day');
+      }
+    } else {
+      novoHistoricoLeituras.push(leitura);
+    }
+
+
+    setHistoricoLeituras(novoHistoricoLeituras);
   
     // Limpar os campos de entrada
     setValorKWHDia('');
@@ -115,7 +152,7 @@ function RegistroConsumoEnergia({ dataInicial, dataFinal }) {
       setValorAtualLeitura('');
       setEditarAtualLeitura(false);
     }
-  };
+  };  
   
   
   const handleEditarLeitura = (index) => {
