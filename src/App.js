@@ -1,4 +1,4 @@
-import CalculadoraConsumoEnergia from './CalculadoraConsumoEnergia';
+import CalculadoraConsumoEnergia from "./CalculadoraConsumoEnergia";
 
 function App() {
   return (
