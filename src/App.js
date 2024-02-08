@@ -1,9 +1,9 @@
-import CalculadoraConsumoEnergia from "./CalculadoraConsumoEnergia";
+import MonitoramentoConsumoEnergia from "./MonitoramentoConsumoEnergia";
 
 function App() {
   return (
     <div className="App">
-      <CalculadoraConsumoEnergia />
+      <MonitoramentoConsumoEnergia />
     </div>
   );
 }

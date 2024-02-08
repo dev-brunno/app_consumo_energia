@@ -9,10 +9,9 @@ function RegistroConsumoEnergia({
   dataInicial,
   dataFinal,
   consumoMensalDesejado,
-  valorKwhDiarioDesejado,
 }) {
-  const [valorAtualLeitura, setValorAtualLeitura] = useState("");
-  const [valorKWHDia, setValorKWHDia] = useState("");
+  const [valorAtualLeitura, setValorAtualLeitura] = useState("12807");
+  const [valorKWHDia, setValorKWHDia] = useState("12963");
   const [historicoLeituras, setHistoricoLeituras] = useState([]);
   const [editarAtualLeitura, setEditarAtualLeitura] = useState(true);
   const [consumoMensal, setConsumoMensal] = useState(0);
@@ -20,6 +19,9 @@ function RegistroConsumoEnergia({
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedDateTime, setSelectedDateTime] = useState("");
   const [valorKwhDiarioProximo, setValorKwhDiarioProximo] = useState(0);
+  const [valorKwhDiarioDesejado, setValorKwhDiarioDesejado] = useState(0);
+  const [periodo, setPeriodo] = useState("");
+  const [diasEntreLeituras, setDiasEntreLeituras] = useState("");
 
   useEffect(() => {
     const dias = [];
@@ -43,14 +45,36 @@ function RegistroConsumoEnergia({
       setConsumoMensal(consumoMensalTotal);
     };
 
-    // Calcular o consumo mensal sempre que o histórico de leituras ou o consumoMensalDesejado for alterado
+    const calcularMediaDesejadaMensal = () => {
+      const periodoString = `${moment(dataInicial).format(
+        "DD/MM/YYYY"
+      )} - ${moment(dataFinal).format("DD/MM/YYYY")}`;
+      setPeriodo(periodoString);
+
+      const numDiasEntreLeitura =
+        moment(dataFinal).diff(moment(dataInicial), "days") + 1;
+      setDiasEntreLeituras(numDiasEntreLeitura);
+
+      const numValorKwhDiarioDesejado =
+        consumoMensalDesejado / numDiasEntreLeitura;
+      setValorKwhDiarioDesejado(numValorKwhDiarioDesejado);
+    };
+
+    // Calcular o consumo mensal sempre que o histórico de leituras, consumoMensalDesejado, dataFinal ou dataInicial for alterado
     calcularConsumoMensal();
+    calcularMediaDesejadaMensal();
 
     // Calcular o valor do KWH diário necessário para os dias restantes
     const diasRestantes = moment(dataFinal).diff(moment(), "days") + 1;
     const diferencaConsumoDesejado = consumoMensalDesejado - consumoMensal;
     setValorKwhDiarioProximo(diferencaConsumoDesejado / diasRestantes);
-  }, [historicoLeituras, consumoMensalDesejado, dataFinal, consumoMensal]);
+  }, [
+    historicoLeituras,
+    consumoMensalDesejado,
+    dataFinal,
+    consumoMensal,
+    dataInicial,
+  ]);
 
   const handleAtualLeituraChange = (event) => {
     setValorAtualLeitura(event.target.value);
@@ -256,37 +280,47 @@ function RegistroConsumoEnergia({
       )}
 
       <div>
-        <h2>Histórico de Leituras diárias</h2>
-        <ul>
-          {historicoLeituras.map((leitura, index) => (
-            <li key={index}>
-              {moment(leitura.data).format("LL")} - KWH Atual:{" "}
-              {leitura.valorKWHDia}, KWH Anterior: {leitura.valorKWHAnterior},
-              KWH Diário: {leitura.kwhDiario}
-              {index === historicoLeituras.length - 1 && ( // Apenas o último item pode ser editado ou excluído
-                <>
-                  <button onClick={() => handleEditarLeitura(index)}>
-                    Editar
-                  </button>
-                  <button onClick={() => handleExcluirLeitura(index)}>
-                    Excluir
-                  </button>
-                </>
-              )}
-            </li>
-          ))}
-        </ul>
-      </div>
+        {historicoLeituras.length > 0 && (
+          <div>
+            <h2>Histórico de Leituras diárias</h2>
+            <ul>
+              {historicoLeituras.map((leitura, index) => (
+                <li key={index}>
+                  {moment(leitura.data).format("LL")} - KWH Atual:{" "}
+                  {leitura.valorKWHDia}, KWH Anterior:{" "}
+                  {leitura.valorKWHAnterior}, KWH Diário: {leitura.kwhDiario}
+                  {index === historicoLeituras.length - 1 && ( // Apenas o último item pode ser editado ou excluído
+                    <>
+                      <button onClick={() => handleEditarLeitura(index)}>
+                        Editar
+                      </button>
+                      <button onClick={() => handleExcluirLeitura(index)}>
+                        Excluir
+                      </button>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
-      <div>
-        <h2>Consumo Mensal Atual</h2>
-        <p>{consumoMensal.toFixed(2)}</p>
-        <p>Consumo Mensal Desejado: {consumoMensalDesejado}</p>
-        <p>Valor do KWH Diário Desejado: {valorKwhDiarioDesejado}</p>
-        <p>
-          Valor do KWH Diário para atingir o Consumo Mensal Desejado:{" "}
-          {valorKwhDiarioProximo.toFixed(2)}
-        </p>
+        {historicoLeituras.length > 0 && (
+          <div>
+            <h2>Resumo</h2>
+            <p>Período: {periodo}</p>
+            <p>Número de Dias entre as Leituras: {diasEntreLeituras}</p>
+            <p>Consumo mensal atual: {consumoMensal.toFixed(2)}</p>
+            <p>Consumo Mensal Desejado: {consumoMensalDesejado}</p>
+            <p>
+              Valor do KWH Diário Desejado: {valorKwhDiarioDesejado.toFixed(2)}
+            </p>
+            <p>
+              Valor do KWH Diário para atingir o Consumo Mensal Desejado:{" "}
+              {valorKwhDiarioProximo.toFixed(2)}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
