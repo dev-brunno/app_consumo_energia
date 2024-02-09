@@ -9,6 +9,7 @@ function RegistroConsumoEnergia({
   dataInicial,
   dataFinal,
   consumoMensalDesejado,
+  periodoEditado,
 }) {
   const [valorAtualLeitura, setValorAtualLeitura] = useState("12807");
   const [valorKWHDia, setValorKWHDia] = useState("12954");
@@ -22,6 +23,10 @@ function RegistroConsumoEnergia({
   const [valorKwhDiarioDesejado, setValorKwhDiarioDesejado] = useState(0);
   const [periodo, setPeriodo] = useState("");
   const [diasEntreLeituras, setDiasEntreLeituras] = useState("");
+  const [dataInicialEditada, setDataInicialEditada] = useState(dataInicial);
+  const [dataFinalEditada, setDataFinalEditada] = useState(dataFinal);
+  const [consumoMensalDesejadoEditado, setConsumoMensalDesejadoEditado] =
+    useState(consumoMensalDesejado);
 
   useEffect(() => {
     const dias = [];
@@ -86,6 +91,14 @@ function RegistroConsumoEnergia({
     consumoMensal,
     dataInicial,
   ]);
+
+  useEffect(() => {
+    if (periodoEditado) {
+      setDataInicialEditada(periodoEditado.dataLeituraAtual);
+      setDataFinalEditada(periodoEditado.dataProximaLeitura);
+      setConsumoMensalDesejadoEditado(periodoEditado.consumoMensalDesejado);
+    }
+  }, [periodoEditado]);
 
   const handleAtualLeituraChange = (event) => {
     setValorAtualLeitura(event.target.value);
@@ -243,6 +256,33 @@ function RegistroConsumoEnergia({
   return (
     <div className="RegistroConsumoEnergia">
       <h1>Registro de Consumo de Energia Diário</h1>
+
+      <div>
+        <label>Data da Leitura Atual:</label>
+        <input
+          type="date"
+          value={dataInicialEditada}
+          onChange={(e) => setDataInicialEditada(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label>Data da Próxima Leitura:</label>
+        <input
+          type="date"
+          value={dataFinalEditada}
+          onChange={(e) => setDataFinalEditada(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label>Consumo mensal desejado (em KWH):</label>
+        <input
+          type="number"
+          value={consumoMensalDesejadoEditado}
+          onChange={(e) => setConsumoMensalDesejadoEditado(e.target.value)}
+        />
+      </div>
 
       <div>
         <label>

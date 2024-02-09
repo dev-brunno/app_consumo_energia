@@ -6,10 +6,10 @@ function MonitoramentoConsumoEnergia() {
   const [periodos, setPeriodos] = useState([]);
   const [editingPeriodoIndex, setEditingPeriodoIndex] = useState(null);
   const [showRegistroConsumo, setShowRegistroConsumo] = useState(false); // Estado para controlar a visibilidade do RegistroConsumoEnergia
-
   const [dataLeituraAtual, setDataLeituraAtual] = useState("");
   const [dataProximaLeitura, setDataProximaLeitura] = useState("");
   const [consumoMensalDesejado, setConsumoMensalDesejado] = useState("");
+  const [periodoEditado, setPeriodoEditado] = useState(null); // Estado para armazenar o período sendo editado
 
   const handleAddPeriodo = () => {
     // Verifica se todos os campos foram preenchidos
@@ -34,9 +34,11 @@ function MonitoramentoConsumoEnergia() {
 
   const handleEditPeriodo = (index) => {
     setEditingPeriodoIndex(index);
-    setDataLeituraAtual(periodos[index].dataLeituraAtual);
-    setDataProximaLeitura(periodos[index].dataProximaLeitura);
-    setConsumoMensalDesejado(periodos[index].consumoMensalDesejado);
+    const periodoSelecionado = periodos[index];
+    setDataLeituraAtual(periodoSelecionado.dataLeituraAtual);
+    setDataProximaLeitura(periodoSelecionado.dataProximaLeitura);
+    setConsumoMensalDesejado(periodoSelecionado.consumoMensalDesejado);
+    setPeriodoEditado(periodoSelecionado); // Armazena as informações do período sendo editado
     setShowRegistroConsumo(true); // Defina showRegistroConsumo como true ao editar um período
   };
 
@@ -114,6 +116,7 @@ function MonitoramentoConsumoEnergia() {
             dataInicial={dataLeituraAtual}
             dataFinal={dataProximaLeitura}
             consumoMensalDesejado={consumoMensalDesejado}
+            periodoEditado={periodoEditado} // Passe as informações do período sendo editado
           />
         </>
       )}
