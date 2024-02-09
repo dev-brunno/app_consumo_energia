@@ -11,13 +11,13 @@ function RegistroConsumoEnergia({
   consumoMensalDesejado,
 }) {
   const [valorAtualLeitura, setValorAtualLeitura] = useState("12807");
-  const [valorKWHDia, setValorKWHDia] = useState("12963");
+  const [valorKWHDia, setValorKWHDia] = useState("12954");
   const [historicoLeituras, setHistoricoLeituras] = useState([]);
   const [editarAtualLeitura, setEditarAtualLeitura] = useState(true);
   const [consumoMensal, setConsumoMensal] = useState(0);
   const [diasDisponiveis, setDiasDisponiveis] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
-  const [selectedDateTime, setSelectedDateTime] = useState("");
+  const [selectedDateTime, setSelectedDateTime] = useState("2024-02-06T21:00");
   const [valorKwhDiarioProximo, setValorKwhDiarioProximo] = useState(0);
   const [valorKwhDiarioDesejado, setValorKwhDiarioDesejado] = useState(0);
   const [periodo, setPeriodo] = useState("");
@@ -45,6 +45,22 @@ function RegistroConsumoEnergia({
       setConsumoMensal(consumoMensalTotal);
     };
 
+    // Calcular o valor do KWH diário necessário para os dias restantes
+    if (historicoLeituras.length > 0) {
+      // Calcular o valor do KWH diário necessário para os dias restantes
+      const calcularMediaDiariaDesejada = () => {
+        const diasRestantes = moment(dataFinal).diff(
+          historicoLeituras[historicoLeituras.length - 1].data,
+          "days"
+        );
+        const diferencaConsumoDesejado = consumoMensalDesejado - consumoMensal;
+        setValorKwhDiarioProximo(diferencaConsumoDesejado / diasRestantes);
+      };
+
+      // Calcular o consumo mensal sempre que o histórico de leituras, consumoMensalDesejado, dataFinal ou dataInicial for alterado
+      calcularMediaDiariaDesejada();
+    }
+
     const calcularMediaDesejadaMensal = () => {
       const periodoString = `${moment(dataInicial).format(
         "DD/MM/YYYY"
@@ -63,11 +79,6 @@ function RegistroConsumoEnergia({
     // Calcular o consumo mensal sempre que o histórico de leituras, consumoMensalDesejado, dataFinal ou dataInicial for alterado
     calcularConsumoMensal();
     calcularMediaDesejadaMensal();
-
-    // Calcular o valor do KWH diário necessário para os dias restantes
-    const diasRestantes = moment(dataFinal).diff(moment(), "days") + 1;
-    const diferencaConsumoDesejado = consumoMensalDesejado - consumoMensal;
-    setValorKwhDiarioProximo(diferencaConsumoDesejado / diasRestantes);
   }, [
     historicoLeituras,
     consumoMensalDesejado,
