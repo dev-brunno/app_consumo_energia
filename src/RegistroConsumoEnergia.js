@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import moment from "moment";
 import "moment/locale/pt-br"; // Defina o idioma para português do Brasil
-
-// Função utilitária para manipulação de data e hora
 const formatDate = (date) => moment(date).format("YYYY-MM-DD");
 
 function RegistroConsumoEnergia({
@@ -10,15 +8,17 @@ function RegistroConsumoEnergia({
   dataFinal,
   consumoMensalDesejado,
   periodoEditado,
+  updatePeriodoEditado,
+  setShowRegistroConsumo,
 }) {
-  const [valorAtualLeitura, setValorAtualLeitura] = useState("12807");
-  const [valorKWHDia, setValorKWHDia] = useState("12954");
+  const [valorAtualLeitura, setValorAtualLeitura] = useState("");
+  const [valorKWHDia, setValorKWHDia] = useState("");
   const [historicoLeituras, setHistoricoLeituras] = useState([]);
   const [editarAtualLeitura, setEditarAtualLeitura] = useState(true);
   const [consumoMensal, setConsumoMensal] = useState(0);
   const [diasDisponiveis, setDiasDisponiveis] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
-  const [selectedDateTime, setSelectedDateTime] = useState("2024-02-06T21:00");
+  const [selectedDateTime, setSelectedDateTime] = useState("");
   const [valorKwhDiarioProximo, setValorKwhDiarioProximo] = useState(0);
   const [valorKwhDiarioDesejado, setValorKwhDiarioDesejado] = useState(0);
   const [periodo, setPeriodo] = useState("");
@@ -41,7 +41,6 @@ function RegistroConsumoEnergia({
   }, [dataInicial, dataFinal]);
 
   useEffect(() => {
-    // Função para calcular o consumo mensal
     const calcularConsumoMensal = () => {
       const consumoMensalTotal = historicoLeituras.reduce(
         (total, leitura) => total + parseFloat(leitura.kwhDiario),
@@ -50,9 +49,7 @@ function RegistroConsumoEnergia({
       setConsumoMensal(consumoMensalTotal);
     };
 
-    // Calcular o valor do KWH diário necessário para os dias restantes
     if (historicoLeituras.length > 0) {
-      // Calcular o valor do KWH diário necessário para os dias restantes
       const calcularMediaDiariaDesejada = () => {
         const diasRestantes = moment(dataFinal).diff(
           historicoLeituras[historicoLeituras.length - 1].data,
@@ -62,7 +59,6 @@ function RegistroConsumoEnergia({
         setValorKwhDiarioProximo(diferencaConsumoDesejado / diasRestantes);
       };
 
-      // Calcular o consumo mensal sempre que o histórico de leituras, consumoMensalDesejado, dataFinal ou dataInicial for alterado
       calcularMediaDiariaDesejada();
     }
 
@@ -81,7 +77,6 @@ function RegistroConsumoEnergia({
       setValorKwhDiarioDesejado(numValorKwhDiarioDesejado);
     };
 
-    // Calcular o consumo mensal sempre que o histórico de leituras, consumoMensalDesejado, dataFinal ou dataInicial for alterado
     calcularConsumoMensal();
     calcularMediaDesejadaMensal();
   }, [
@@ -97,6 +92,8 @@ function RegistroConsumoEnergia({
       setDataInicialEditada(periodoEditado.dataLeituraAtual);
       setDataFinalEditada(periodoEditado.dataProximaLeitura);
       setConsumoMensalDesejadoEditado(periodoEditado.consumoMensalDesejado);
+      setHistoricoLeituras(periodoEditado.historicoLeituras);
+      // Defina outros estados conforme necessário
     }
   }, [periodoEditado]);
 
@@ -253,6 +250,32 @@ function RegistroConsumoEnergia({
     setEditarAtualLeitura(true);
   };
 
+  const handleSalvarLeitura = () => {
+    handleUpdatePeriodoEditado(); // Atualize o período editado no componente pai
+    setShowRegistroConsumo(false); // Oculte o componente de registro de consumo após salvar
+  };
+
+  const handleUpdatePeriodoEditado = () => {
+    // Coletar os dados atualizados
+    const periodoAtualizado = {
+      dataLeituraAtual: dataInicialEditada,
+      dataProximaLeitura: dataFinalEditada,
+      consumoMensalDesejado: consumoMensalDesejadoEditado,
+      historicoLeituras: historicoLeituras,
+      resumo: {
+        periodo: periodo, // Adicione o período calculado
+        diasEntreLeituras: diasEntreLeituras, // Adicione os dias entre leituras
+        consumoMensal: consumoMensal, // Adicione o consumo mensal
+        consumoMensalDesejado: consumoMensalDesejado, // Adicione o consumo mensal desejado
+        valorKwhDiarioDesejado: valorKwhDiarioDesejado, // Adicione o valor do kWh diário desejado
+        valorKwhDiarioProximo: valorKwhDiarioProximo, // Adicione o valor do kWh diário para atingir o consumo mensal desejado
+      },
+    };
+
+    // Chamar a função de callback para atualizar o componente pai
+    updatePeriodoEditado(periodoAtualizado);
+  };
+
   return (
     <div className="RegistroConsumoEnergia">
       <h1>Registro de Consumo de Energia Diário</h1>
@@ -321,6 +344,7 @@ function RegistroConsumoEnergia({
       </div>
 
       <button onClick={registrarLeitura}>Registrar Leitura</button>
+      <button onClick={handleSalvarLeitura}>Salvar</button>
 
       {historicoLeituras.length > 0 && (
         <div>

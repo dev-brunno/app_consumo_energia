@@ -1,18 +1,25 @@
 import React, { useState } from "react";
 import moment from "moment";
-import RegistroConsumoEnergia from "./RegistroConsumoEnergia"; // Importe o componente
+import RegistroConsumoEnergia from "./RegistroConsumoEnergia";
 
 function MonitoramentoConsumoEnergia() {
-  const [periodos, setPeriodos] = useState([]);
+  const [periodos, setPeriodos] = useState([
+    {
+      dataLeituraAtual: "",
+      dataProximaLeitura: "",
+      consumoMensalDesejado: "",
+      historicoLeituras: [],
+      resumo: {},
+    },
+  ]);
   const [editingPeriodoIndex, setEditingPeriodoIndex] = useState(null);
-  const [showRegistroConsumo, setShowRegistroConsumo] = useState(false); // Estado para controlar a visibilidade do RegistroConsumoEnergia
+  const [showRegistroConsumo, setShowRegistroConsumo] = useState(false);
   const [dataLeituraAtual, setDataLeituraAtual] = useState("");
   const [dataProximaLeitura, setDataProximaLeitura] = useState("");
   const [consumoMensalDesejado, setConsumoMensalDesejado] = useState("");
-  const [periodoEditado, setPeriodoEditado] = useState(null); // Estado para armazenar o período sendo editado
+  const [periodoEditado, setPeriodoEditado] = useState(null);
 
   const handleAddPeriodo = () => {
-    // Verifica se todos os campos foram preenchidos
     if (!dataLeituraAtual || !dataProximaLeitura || !consumoMensalDesejado) {
       alert("Por favor, preencha todos os campos.");
       return;
@@ -22,11 +29,19 @@ function MonitoramentoConsumoEnergia() {
       dataLeituraAtual,
       dataProximaLeitura,
       consumoMensalDesejado,
+      historicoLeituras: [],
+      resumo: {
+        periodo: "",
+        diasEntreLeituras: "",
+        consumoMensal: 0,
+        consumoMensalDesejado: 0,
+        valorKwhDiarioDesejado: 0,
+        valorKwhDiarioProximo: 0,
+      },
     };
 
     setPeriodos([...periodos, novoPeriodo]);
 
-    // Limpa os campos após adicionar o período
     setDataLeituraAtual("");
     setDataProximaLeitura("");
     setConsumoMensalDesejado("");
@@ -34,12 +49,11 @@ function MonitoramentoConsumoEnergia() {
 
   const handleEditPeriodo = (index) => {
     setEditingPeriodoIndex(index);
-    const periodoSelecionado = periodos[index];
-    setDataLeituraAtual(periodoSelecionado.dataLeituraAtual);
-    setDataProximaLeitura(periodoSelecionado.dataProximaLeitura);
-    setConsumoMensalDesejado(periodoSelecionado.consumoMensalDesejado);
-    setPeriodoEditado(periodoSelecionado); // Armazena as informações do período sendo editado
-    setShowRegistroConsumo(true); // Defina showRegistroConsumo como true ao editar um período
+    setPeriodoEditado({
+      ...periodos[index], // Armazena os dados do período editado
+      index: index, // Armazena o índice do período editado
+    });
+    setShowRegistroConsumo(true); // Mostra o componente de edição
   };
 
   const handleDeletePeriodo = (index) => {
@@ -50,7 +64,14 @@ function MonitoramentoConsumoEnergia() {
 
   const handleBackToList = () => {
     setShowRegistroConsumo(false);
-    setEditingPeriodoIndex(null); // Limpar o índice de edição ao voltar para a lista
+    setEditingPeriodoIndex(null);
+  };
+
+  const handleUpdatePeriodoEditado = (periodoEditado) => {
+    const novosPeriodos = [...periodos];
+    novosPeriodos[editingPeriodoIndex] = periodoEditado;
+    setPeriodos(novosPeriodos);
+    setEditingPeriodoIndex(null);
   };
 
   return (
@@ -87,7 +108,7 @@ function MonitoramentoConsumoEnergia() {
       )}
       {periodos.map((periodo, index) => (
         <div key={index}>
-          {editingPeriodoIndex !== index && !showRegistroConsumo && (
+          {!showRegistroConsumo && (
             <>
               <h2>Período:</h2>
               <p>
@@ -100,26 +121,24 @@ function MonitoramentoConsumoEnergia() {
               </button>
             </>
           )}
-          {editingPeriodoIndex === index && !showRegistroConsumo && (
-            <RegistroConsumoEnergia
-              dataInicial={dataLeituraAtual}
-              dataFinal={dataProximaLeitura}
-              consumoMensalDesejado={consumoMensalDesejado}
-            />
-          )}
+          {showRegistroConsumo &&
+            editingPeriodoIndex === index && ( // Renderiza o componente apenas para o período editado
+              <>
+                <button onClick={handleBackToList}>Voltar</button>
+                <RegistroConsumoEnergia
+                  dataInicial={periodos[periodoEditado.index].dataLeituraAtual}
+                  dataFinal={periodos[periodoEditado.index].dataProximaLeitura}
+                  consumoMensalDesejado={
+                    periodos[periodoEditado.index].consumoMensalDesejado
+                  }
+                  periodoEditado={periodoEditado}
+                  updatePeriodoEditado={handleUpdatePeriodoEditado}
+                  setShowRegistroConsumo={setShowRegistroConsumo} // Passando a função setShowRegistroConsumo como propriedade
+                />
+              </>
+            )}
         </div>
       ))}
-      {showRegistroConsumo && (
-        <>
-          <button onClick={handleBackToList}>Voltar</button>
-          <RegistroConsumoEnergia
-            dataInicial={dataLeituraAtual}
-            dataFinal={dataProximaLeitura}
-            consumoMensalDesejado={consumoMensalDesejado}
-            periodoEditado={periodoEditado} // Passe as informações do período sendo editado
-          />
-        </>
-      )}
     </div>
   );
 }
