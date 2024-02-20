@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import moment from "moment";
-import "moment/locale/pt-br"; // Defina o idioma para português do Brasil
+import "moment/locale/pt-br";
 const formatDate = (date) => moment(date).format("YYYY-MM-DD");
 
 function RegistroConsumoEnergia({
@@ -42,14 +42,16 @@ function RegistroConsumoEnergia({
 
   useEffect(() => {
     const calcularConsumoMensal = () => {
-      const consumoMensalTotal = historicoLeituras.reduce(
-        (total, leitura) => total + parseFloat(leitura.kwhDiario),
-        0
-      );
-      setConsumoMensal(consumoMensalTotal);
+      if (historicoLeituras && historicoLeituras.length > 0) {
+        const consumoMensalTotal = historicoLeituras.reduce(
+          (total, leitura) => total + parseFloat(leitura.kwhDiario),
+          0
+        );
+        setConsumoMensal(consumoMensalTotal);
+      }
     };
 
-    if (historicoLeituras.length > 0) {
+    if (historicoLeituras && historicoLeituras.length > 0) {
       const calcularMediaDiariaDesejada = () => {
         const diasRestantes = moment(dataFinal).diff(
           historicoLeituras[historicoLeituras.length - 1].data,
@@ -127,6 +129,7 @@ function RegistroConsumoEnergia({
 
     // Verificar se o valor do kWh do dia é menor que o valor KWHAnterior
     if (
+      historicoLeituras &&
       historicoLeituras.length > 0 &&
       parseFloat(valorKWHDia) <
         parseFloat(historicoLeituras[historicoLeituras.length - 1].valorKWHDia)
@@ -155,7 +158,7 @@ function RegistroConsumoEnergia({
     // Calcular a diferença do KWH diário
     let diferencaKWH = 0;
     let valorKWHAnterior = 0;
-    if (historicoLeituras.length > 0) {
+    if (historicoLeituras && historicoLeituras.length > 0) {
       const ultimoRegistro = historicoLeituras[historicoLeituras.length - 1];
       diferencaKWH =
         parseFloat(valorKWHDia) - parseFloat(ultimoRegistro.valorKWHDia);
@@ -217,7 +220,6 @@ function RegistroConsumoEnergia({
 
     setHistoricoLeituras(novoHistoricoLeituras);
 
-    // Limpar os campos de entrada
     setValorKWHDia("");
     setSelectedDate("");
     if (editarAtualLeitura) {
@@ -231,7 +233,6 @@ function RegistroConsumoEnergia({
     setValorAtualLeitura(leituraEditada.valorAtualLeitura);
     setValorKWHDia(leituraEditada.valorKWHDia);
 
-    // Remova a leitura editada do histórico
     const novoHistorico = [...historicoLeituras];
     novoHistorico.splice(index, 1);
     setHistoricoLeituras(novoHistorico);
@@ -251,28 +252,26 @@ function RegistroConsumoEnergia({
   };
 
   const handleSalvarLeitura = () => {
-    handleUpdatePeriodoEditado(); // Atualize o período editado no componente pai
-    setShowRegistroConsumo(false); // Oculte o componente de registro de consumo após salvar
+    handleUpdatePeriodoEditado();
+    setShowRegistroConsumo(false);
   };
 
   const handleUpdatePeriodoEditado = () => {
-    // Coletar os dados atualizados
     const periodoAtualizado = {
       dataLeituraAtual: dataInicialEditada,
       dataProximaLeitura: dataFinalEditada,
       consumoMensalDesejado: consumoMensalDesejadoEditado,
       historicoLeituras: historicoLeituras,
       resumo: {
-        periodo: periodo, // Adicione o período calculado
-        diasEntreLeituras: diasEntreLeituras, // Adicione os dias entre leituras
-        consumoMensal: consumoMensal, // Adicione o consumo mensal
-        consumoMensalDesejado: consumoMensalDesejado, // Adicione o consumo mensal desejado
-        valorKwhDiarioDesejado: valorKwhDiarioDesejado, // Adicione o valor do kWh diário desejado
-        valorKwhDiarioProximo: valorKwhDiarioProximo, // Adicione o valor do kWh diário para atingir o consumo mensal desejado
+        periodo: periodo,
+        diasEntreLeituras: diasEntreLeituras,
+        consumoMensal: consumoMensal,
+        consumoMensalDesejado: consumoMensalDesejado,
+        valorKwhDiarioDesejado: valorKwhDiarioDesejado,
+        valorKwhDiarioProximo: valorKwhDiarioProximo,
       },
     };
 
-    // Chamar a função de callback para atualizar o componente pai
     updatePeriodoEditado(periodoAtualizado);
   };
 
@@ -314,7 +313,11 @@ function RegistroConsumoEnergia({
             type="number"
             value={valorAtualLeitura}
             onChange={handleAtualLeituraChange}
-            disabled={!editarAtualLeitura && historicoLeituras.length > 0}
+            disabled={
+              !editarAtualLeitura &&
+              historicoLeituras &&
+              historicoLeituras.length > 0
+            }
           />
         </label>
       </div>
@@ -346,7 +349,7 @@ function RegistroConsumoEnergia({
       <button onClick={registrarLeitura}>Registrar Leitura</button>
       <button onClick={handleSalvarLeitura}>Salvar</button>
 
-      {historicoLeituras.length > 0 && (
+      {historicoLeituras && historicoLeituras.length > 0 && (
         <div>
           <button onClick={handleEditarAtualLeitura}>
             Editar Última Leitura
@@ -355,7 +358,7 @@ function RegistroConsumoEnergia({
       )}
 
       <div>
-        {historicoLeituras.length > 0 && (
+        {historicoLeituras && historicoLeituras.length > 0 && (
           <div>
             <h2>Histórico de Leituras diárias</h2>
             <ul>
@@ -364,7 +367,7 @@ function RegistroConsumoEnergia({
                   {moment(leitura.data).format("LL")} - KWH Atual:{" "}
                   {leitura.valorKWHDia}, KWH Anterior:{" "}
                   {leitura.valorKWHAnterior}, KWH Diário: {leitura.kwhDiario}
-                  {index === historicoLeituras.length - 1 && ( // Apenas o último item pode ser editado ou excluído
+                  {index === historicoLeituras.length - 1 && (
                     <>
                       <button onClick={() => handleEditarLeitura(index)}>
                         Editar
@@ -380,7 +383,7 @@ function RegistroConsumoEnergia({
           </div>
         )}
 
-        {historicoLeituras.length > 0 && (
+        {historicoLeituras && historicoLeituras.length > 0 && (
           <div>
             <h2>Resumo</h2>
             <p>Período: {periodo}</p>

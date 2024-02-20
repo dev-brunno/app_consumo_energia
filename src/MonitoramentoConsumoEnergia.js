@@ -1,23 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import moment from "moment";
+import { db } from "./firebase";
+import {
+  ref,
+  onValue,
+  off,
+  getDatabase,
+  set,
+  remove,
+  push,
+} from "firebase/database";
 import RegistroConsumoEnergia from "./RegistroConsumoEnergia";
 
 function MonitoramentoConsumoEnergia() {
-  const [periodos, setPeriodos] = useState([
-    {
-      dataLeituraAtual: "",
-      dataProximaLeitura: "",
-      consumoMensalDesejado: "",
-      historicoLeituras: [],
-      resumo: {},
-    },
-  ]);
+  const [periodos, setPeriodos] = useState([]);
   const [editingPeriodoIndex, setEditingPeriodoIndex] = useState(null);
   const [showRegistroConsumo, setShowRegistroConsumo] = useState(false);
   const [dataLeituraAtual, setDataLeituraAtual] = useState("");
   const [dataProximaLeitura, setDataProximaLeitura] = useState("");
   const [consumoMensalDesejado, setConsumoMensalDesejado] = useState("");
   const [periodoEditado, setPeriodoEditado] = useState(null);
+
+  useEffect(() => {
+    const periodosRef = ref(db, "periodos");
+    onValue(
+      periodosRef,
+      (snapshot) => {
+        const periodosData = snapshot.val();
+        const periodosArray = [];
+        for (let key in periodosData) {
+          periodosArray.push({
+            key: key,
+            ...periodosData[key],
+          });
+        }
+        setPeriodos(periodosArray);
+      },
+      (error) => {
+        console.log("Erro ao buscar os periodos:", error.message);
+      }
+    );
+
+    return () => off(periodosRef);
+  }, []);
 
   const handleAddPeriodo = () => {
     if (!dataLeituraAtual || !dataProximaLeitura || !consumoMensalDesejado) {
@@ -40,7 +65,15 @@ function MonitoramentoConsumoEnergia() {
       },
     };
 
-    setPeriodos([...periodos, novoPeriodo]);
+    const periodosRef = ref(db, "periodos");
+
+    push(periodosRef, novoPeriodo)
+      .then(() => {
+        console.log("Novo período adicionado com sucesso!");
+      })
+      .catch((error) => {
+        console.log("Erro ao adicionar novo período:", error.message);
+      });
 
     setDataLeituraAtual("");
     setDataProximaLeitura("");
@@ -49,17 +82,24 @@ function MonitoramentoConsumoEnergia() {
 
   const handleEditPeriodo = (index) => {
     setEditingPeriodoIndex(index);
-    setPeriodoEditado({
-      ...periodos[index], // Armazena os dados do período editado
-      index: index, // Armazena o índice do período editado
-    });
-    setShowRegistroConsumo(true); // Mostra o componente de edição
+    const novoPeriodoEditado = {
+      ...periodos[index],
+      index: index,
+    };
+    setPeriodoEditado(novoPeriodoEditado);
+    setShowRegistroConsumo(true);
   };
 
   const handleDeletePeriodo = (index) => {
-    const novosPeriodos = [...periodos];
-    novosPeriodos.splice(index, 1);
-    setPeriodos(novosPeriodos);
+    const periodoKey = periodos[index].key;
+    const periodoRef = ref(db, `periodos/${periodoKey}`);
+    remove(periodoRef)
+      .then(() => {
+        console.log("Período excluído com sucesso!");
+      })
+      .catch((error) => {
+        console.log("Erro ao excluir o período:", error.message);
+      });
   };
 
   const handleBackToList = () => {
@@ -68,9 +108,8 @@ function MonitoramentoConsumoEnergia() {
   };
 
   const handleUpdatePeriodoEditado = (periodoEditado) => {
-    const novosPeriodos = [...periodos];
-    novosPeriodos[editingPeriodoIndex] = periodoEditado;
-    setPeriodos(novosPeriodos);
+    const periodoKey = periodos[editingPeriodoIndex].key;
+    set(ref(getDatabase(), `periodos/${periodoKey}`), periodoEditado);
     setEditingPeriodoIndex(null);
   };
 
@@ -121,22 +160,21 @@ function MonitoramentoConsumoEnergia() {
               </button>
             </>
           )}
-          {showRegistroConsumo &&
-            editingPeriodoIndex === index && ( // Renderiza o componente apenas para o período editado
-              <>
-                <button onClick={handleBackToList}>Voltar</button>
-                <RegistroConsumoEnergia
-                  dataInicial={periodos[periodoEditado.index].dataLeituraAtual}
-                  dataFinal={periodos[periodoEditado.index].dataProximaLeitura}
-                  consumoMensalDesejado={
-                    periodos[periodoEditado.index].consumoMensalDesejado
-                  }
-                  periodoEditado={periodoEditado}
-                  updatePeriodoEditado={handleUpdatePeriodoEditado}
-                  setShowRegistroConsumo={setShowRegistroConsumo} // Passando a função setShowRegistroConsumo como propriedade
-                />
-              </>
-            )}
+          {showRegistroConsumo && editingPeriodoIndex === index && (
+            <>
+              <button onClick={handleBackToList}>Voltar</button>
+              <RegistroConsumoEnergia
+                dataInicial={periodos[periodoEditado.index].dataLeituraAtual}
+                dataFinal={periodos[periodoEditado.index].dataProximaLeitura}
+                consumoMensalDesejado={
+                  periodos[periodoEditado.index].consumoMensalDesejado
+                }
+                periodoEditado={periodoEditado}
+                updatePeriodoEditado={handleUpdatePeriodoEditado}
+                setShowRegistroConsumo={setShowRegistroConsumo}
+              />
+            </>
+          )}
         </div>
       ))}
     </div>
