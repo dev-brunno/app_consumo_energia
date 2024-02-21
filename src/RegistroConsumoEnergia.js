@@ -143,7 +143,7 @@ function RegistroConsumoEnergia({
     }
 
     // Verificar se a data selecionada já foi registrada
-    const leituraExistente = historicoLeituras.find((leitura) =>
+    const leituraExistente = historicoLeituras?.find((leitura) =>
       moment(leitura.data).isSame(selectedDateTime, "day")
     );
     if (leituraExistente) {
@@ -177,7 +177,7 @@ function RegistroConsumoEnergia({
     }
 
     // Atualizar o histórico de leituras
-    const novoHistoricoLeituras = [...historicoLeituras];
+    const novoHistoricoLeituras = [...(historicoLeituras ?? [])];
     const diaSelecionado = moment(selectedDateTime);
     const ultimoDiaRegistrado =
       novoHistoricoLeituras.length > 0
