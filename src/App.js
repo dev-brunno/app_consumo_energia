@@ -2,7 +2,7 @@ import MonitoramentoConsumoEnergia from "./MonitoramentoConsumoEnergia";
 
 function App() {
   return (
-    <div className="App">
+    <div className="App bg-custom-amarelo">
       <MonitoramentoConsumoEnergia />
     </div>
   );

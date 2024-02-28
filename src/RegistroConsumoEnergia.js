@@ -276,127 +276,196 @@ function RegistroConsumoEnergia({
   };
 
   return (
-    <div className="RegistroConsumoEnergia">
-      <h1>Registro de Consumo de Energia Diário</h1>
+    <div className="RegistroConsumoEnergia ">
+      <div className=" bg-custom-roxo p-5 rounded-2xl">
+        <h1 className=" text-custom-amarelo font-bold text-2xl">
+          Registro de Consumo de Energia Diário
+        </h1>
+        <div className=" grid space-y-2 my-4">
+          <div>
+            <label className="block mb-2 text-sm font-medium text-white">
+              Data da Leitura Atual
+            </label>
+            <input
+              className="bg-gray-50 border border-gray-300 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-36 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              type="date"
+              value={dataInicialEditada}
+              onChange={(e) => setDataInicialEditada(e.target.value)}
+            />
+          </div>
 
-      <div>
-        <label>Data da Leitura Atual:</label>
-        <input
-          type="date"
-          value={dataInicialEditada}
-          onChange={(e) => setDataInicialEditada(e.target.value)}
-        />
-      </div>
+          <div>
+            <label className="block mb-2 text-sm font-medium text-white">
+              Data da Próxima Leitura
+            </label>
+            <input
+              className="bg-gray-50 border border-gray-300 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-36 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              type="date"
+              value={dataFinalEditada}
+              onChange={(e) => setDataFinalEditada(e.target.value)}
+            />
+          </div>
 
-      <div>
-        <label>Data da Próxima Leitura:</label>
-        <input
-          type="date"
-          value={dataFinalEditada}
-          onChange={(e) => setDataFinalEditada(e.target.value)}
-        />
-      </div>
+          <div>
+            <label className="block mb-2 text-sm font-medium text-white">
+              Consumo mensal desejado (em KWH):
+            </label>
+            <input
+              className="bg-gray-50 border border-gray-300 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-36 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              type="number"
+              value={consumoMensalDesejadoEditado}
+              onChange={(e) => setConsumoMensalDesejadoEditado(e.target.value)}
+            />
+          </div>
 
-      <div>
-        <label>Consumo mensal desejado (em KWH):</label>
-        <input
-          type="number"
-          value={consumoMensalDesejadoEditado}
-          onChange={(e) => setConsumoMensalDesejadoEditado(e.target.value)}
-        />
-      </div>
+          <div>
+            <label className="block mb-2 text-sm font-medium text-white">
+              Valor do KWH da Leitura Atual:
+              <input
+                className="bg-gray-50 border border-gray-300 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-36 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                type="number"
+                value={valorAtualLeitura}
+                onChange={handleAtualLeituraChange}
+                disabled={historicoLeituras && historicoLeituras.length > 0}
+              />
+            </label>
+          </div>
 
-      <div>
-        <label>
-          Valor do KWH da Leitura Atual:
-          <input
-            type="number"
-            value={valorAtualLeitura}
-            onChange={handleAtualLeituraChange}
-            disabled={
-              !editarAtualLeitura &&
-              historicoLeituras &&
-              historicoLeituras.length > 0
-            }
-          />
-        </label>
-      </div>
+          <div>
+            <label className="block mb-2 text-sm font-medium text-white">
+              Valor do KWH do Dia:
+              <input
+                className="bg-gray-50 border border-gray-300 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-36 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                type="number"
+                value={valorKWHDia}
+                onChange={handleValorKWHDiaChange}
+              />
+            </label>
+          </div>
 
-      <div>
-        <label>
-          Valor do KWH do Dia:
-          <input
-            type="number"
-            value={valorKWHDia}
-            onChange={handleValorKWHDiaChange}
-          />
-        </label>
-      </div>
-
-      <div>
-        <label>
-          Selecione o Dia e Hora:
-          <input
-            type="datetime-local"
-            value={selectedDateTime}
-            onChange={handleDateTimeChange}
-            min={moment(dataInicial).format("YYYY-MM-DDTHH:mm")}
-            max={moment(dataFinal).format("YYYY-MM-DDTHH:mm")}
-          />
-        </label>
-      </div>
-
-      <button onClick={registrarLeitura}>Registrar Leitura</button>
-      <button onClick={handleSalvarLeitura}>Salvar</button>
-
-      {historicoLeituras && historicoLeituras.length > 0 && (
-        <div>
-          <button onClick={handleEditarAtualLeitura}>
-            Editar Última Leitura
-          </button>
+          <div>
+            <label className="block mb-2 text-sm font-medium text-white">
+              Selecione o Dia e Hora:
+              <input
+                className="bg-gray-50 border border-gray-300 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-48 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                type="datetime-local"
+                value={selectedDateTime}
+                onChange={handleDateTimeChange}
+                min={moment(dataInicial).format("YYYY-MM-DDTHH:mm")}
+                max={moment(dataFinal).format("YYYY-MM-DDTHH:mm")}
+              />
+            </label>
+          </div>
         </div>
-      )}
 
-      <div>
+        <button
+          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+          onClick={registrarLeitura}
+        >
+          Registrar Leitura
+        </button>
+        <button
+          class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+          onClick={handleSalvarLeitura}
+        >
+          Salvar
+        </button>
+
         {historicoLeituras && historicoLeituras.length > 0 && (
           <div>
-            <h2>Histórico de Leituras diárias</h2>
-            <ul>
+            <button
+              class="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900"
+              onClick={handleEditarAtualLeitura}
+            >
+              Editar Última Leitura
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className=" bg-custom-blue w-full max-w-md p-4 border-gray-200 rounded-2xl shadow sm:p-8  mt-10 text-white">
+        {historicoLeituras && historicoLeituras.length > 0 && (
+          <div>
+            <h2 className="text-xl font-bold leading-none mb-4">Resumo</h2>
+            <div className=" space-y-4">
+              <p>
+                Período: <span className=" font-bold">{periodo}</span>{" "}
+              </p>
+              <p>
+                Número de Dias entre as Leituras:{" "}
+                <span className=" font-bold">{diasEntreLeituras}</span>
+              </p>
+              <p>
+                Consumo Mensal Desejado:{" "}
+                <span className=" font-bold">{consumoMensalDesejado}</span>
+              </p>
+              <p>
+                Consumo mensal atual:{" "}
+                <span className=" bg-slate-700 p-2 rounded-xl">
+                  {consumoMensal.toFixed(2)}
+                </span>
+              </p>
+              <p>
+                Valor do KWH Diário Desejado:{" "}
+                <span className=" font-bold">
+                  {valorKwhDiarioDesejado.toFixed(2)}
+                </span>
+              </p>
+              <p>
+                Valor do KWH Diário Atual:{" "}
+                <span className=" bg-slate-700 p-2 rounded-xl">
+                  {valorKwhDiarioProximo.toFixed(2)}
+                </span>
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className=" mt-10">
+        {historicoLeituras && historicoLeituras.length > 0 && (
+          <div className="w-full max-w-md p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-8">
+            <h2 className="text-xl font-bold leading-none text-gray-900 mb-4">
+              Histórico de Leituras diárias
+            </h2>
+            <ul className=" flex flex-col space-y-2">
               {historicoLeituras.map((leitura, index) => (
-                <li key={index}>
-                  {moment(leitura.data).format("LL")} - KWH Atual:{" "}
-                  {leitura.valorKWHDia}, KWH Anterior:{" "}
-                  {leitura.valorKWHAnterior}, KWH Diário: {leitura.kwhDiario}
+                <li
+                  className=" bg-custom-amarelo p-2 rounded-2xl space-y-2"
+                  key={index}
+                >
+                  <h4 className=" font-bold">
+                    {moment(leitura.data).format("LL")}
+                  </h4>
+                  <p>
+                    KWH Atual: {leitura.valorKWHDia} KWH Anterior:{" "}
+                    {leitura.valorKWHAnterior}
+                  </p>
+                  <p className=" bg-gray-600 p-1 inline-block rounded-md text-white">
+                    KWH Diário:{" "}
+                    <span className=" font-bold">{leitura.kwhDiario}</span>
+                  </p>
                   {index === historicoLeituras.length - 1 && (
                     <>
-                      <button onClick={() => handleEditarLeitura(index)}>
-                        Editar
-                      </button>
-                      <button onClick={() => handleExcluirLeitura(index)}>
-                        Excluir
-                      </button>
+                      <div>
+                        <button
+                          className="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900"
+                          onClick={() => handleEditarLeitura(index)}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+                          onClick={() => handleExcluirLeitura(index)}
+                        >
+                          Excluir
+                        </button>
+                      </div>
                     </>
                   )}
                 </li>
               ))}
             </ul>
-          </div>
-        )}
-
-        {historicoLeituras && historicoLeituras.length > 0 && (
-          <div>
-            <h2>Resumo</h2>
-            <p>Período: {periodo}</p>
-            <p>Número de Dias entre as Leituras: {diasEntreLeituras}</p>
-            <p>Consumo mensal atual: {consumoMensal.toFixed(2)}</p>
-            <p>Consumo Mensal Desejado: {consumoMensalDesejado}</p>
-            <p>
-              Valor do KWH Diário Desejado: {valorKwhDiarioDesejado.toFixed(2)}
-            </p>
-            <p>
-              Valor do KWH Diário para atingir o Consumo Mensal Desejado:{" "}
-              {valorKwhDiarioProximo.toFixed(2)}
-            </p>
           </div>
         )}
       </div>

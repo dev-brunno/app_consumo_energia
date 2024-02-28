@@ -114,69 +114,122 @@ function MonitoramentoConsumoEnergia() {
   };
 
   return (
-    <div>
+    <div className="p-10">
       {!editingPeriodoIndex && !showRegistroConsumo && (
         <>
-          <h2>Criar um novo monitoramento de consumo de energia</h2>
-          <div>
-            <label>Data da Leitura Atual:</label>
-            <input
-              type="date"
-              value={dataLeituraAtual}
-              onChange={(e) => setDataLeituraAtual(e.target.value)}
-            />
+          <div className=" bg-custom-roxo p-5 rounded-2xl mb-10">
+            <h2 className=" text-2xl font-bold text-custom-amarelo leading-6">
+              Criar um novo monitoramento mensal de consumo de energia
+            </h2>
+            <div class="grid gap-6 mb-6 md:grid-cols-2 mt-6">
+              <div>
+                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Data da Leitura Atual:
+                </label>
+                <input
+                  type="date"
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  value={dataLeituraAtual}
+                  onChange={(e) => setDataLeituraAtual(e.target.value)}
+                />
+              </div>
+              <div>
+                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Data da Próxima Leitura:
+                </label>
+                <input
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  type="date"
+                  value={dataProximaLeitura}
+                  onChange={(e) => setDataProximaLeitura(e.target.value)}
+                />
+              </div>
+              <div>
+                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Consumo mensal desejado (em KWH):
+                </label>
+                <input
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  type="number"
+                  value={consumoMensalDesejado}
+                  onChange={(e) => setConsumoMensalDesejado(e.target.value)}
+                />
+              </div>
+              <button
+                onClick={handleAddPeriodo}
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+              >
+                Criar
+              </button>
+            </div>
           </div>
-          <div>
-            <label>Data da Próxima Leitura:</label>
-            <input
-              type="date"
-              value={dataProximaLeitura}
-              onChange={(e) => setDataProximaLeitura(e.target.value)}
-            />
-          </div>
-          <div>
-            <label>Consumo mensal desejado (em KWH):</label>
-            <input
-              type="number"
-              value={consumoMensalDesejado}
-              onChange={(e) => setConsumoMensalDesejado(e.target.value)}
-            />
-          </div>
-          <button onClick={handleAddPeriodo}>Criar</button>
         </>
       )}
-      {periodos.map((periodo, index) => (
-        <div key={index}>
-          {!showRegistroConsumo && (
-            <>
-              <h2>Período:</h2>
-              <p>
-                {moment(periodo.dataLeituraAtual).format("DD/MM/YYYY")} -{" "}
-                {moment(periodo.dataProximaLeitura).format("DD/MM/YYYY")}
-              </p>
-              <button onClick={() => handleEditPeriodo(index)}>Editar</button>
-              <button onClick={() => handleDeletePeriodo(index)}>
-                Excluir
-              </button>
-            </>
-          )}
-          {showRegistroConsumo && editingPeriodoIndex === index && (
-            <>
-              <button onClick={handleBackToList}>Voltar</button>
-              <RegistroConsumoEnergia
-                dataInicial={periodos[periodoEditado.index].dataLeituraAtual}
-                dataFinal={periodos[periodoEditado.index].dataProximaLeitura}
-                consumoMensalDesejado={
-                  periodos[periodoEditado.index].consumoMensalDesejado
-                }
-                periodoEditado={periodoEditado}
-                updatePeriodoEditado={handleUpdatePeriodoEditado}
-                setShowRegistroConsumo={setShowRegistroConsumo}
-              />
-            </>
-          )}
+      <div className="">
+        <h3 className=" text-2xl text-custom-roxo font-black">
+          Monitoramentos Mensais
+        </h3>
+        <div className=" mt-4 grid gap-4">
+          {periodos.map((periodo, index) => (
+            <div key={index}>
+              {!showRegistroConsumo && (
+                <>
+                  <div className=" bg-custom-cinza p-4 rounded-xl">
+                    <div className="flex space-x-1 font-bold text-lg justify-center">
+                      <h5 className="">Período:</h5>
+                      <p>
+                        {moment(periodo.dataLeituraAtual).format("DD/MM/YYYY")}{" "}
+                        -{" "}
+                        {moment(periodo.dataProximaLeitura).format(
+                          "DD/MM/YYYY"
+                        )}
+                      </p>
+                    </div>
+                    <div className="flex justify-between mt-6">
+                      <button
+                        class="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900"
+                        onClick={() => handleEditPeriodo(index)}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+                        onClick={() => handleDeletePeriodo(index)}
+                      >
+                        Excluir
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+              {showRegistroConsumo && editingPeriodoIndex === index && (
+                <>
+                  <button
+                    class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                    onClick={handleBackToList}
+                  >
+                    Voltar
+                  </button>
+                  <RegistroConsumoEnergia
+                    dataInicial={
+                      periodos[periodoEditado.index].dataLeituraAtual
+                    }
+                    dataFinal={
+                      periodos[periodoEditado.index].dataProximaLeitura
+                    }
+                    consumoMensalDesejado={
+                      periodos[periodoEditado.index].consumoMensalDesejado
+                    }
+                    periodoEditado={periodoEditado}
+                    updatePeriodoEditado={handleUpdatePeriodoEditado}
+                    setShowRegistroConsumo={setShowRegistroConsumo}
+                  />
+                </>
+              )}
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   );
 }
